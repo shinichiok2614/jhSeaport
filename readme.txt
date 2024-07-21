@@ -277,3 +277,52 @@ Với nvm, bạn có thể dễ dàng chuyển đổi giữa các phiên bản N
 
 jhipster docker-compose
 Welcome to the JHipster Docker Compose Sub-Generator 🐳
+
+
+Trong React, cú pháp điều kiện (conditional rendering) được sử dụng để hiển thị các phần tử hoặc component dựa trên điều kiện nhất định.
+
+const MyComponent = ({ isLoggedIn }) => {
+  return (
+    <div>
+      {isLoggedIn && <p>Welcome back!</p>}
+    </div>
+  );
+};
+
+const MyComponent = ({ isLoggedIn }) => {
+  return (
+    <div>
+      {isLoggedIn ? <p>Welcome back!</p> : <p>Please log in.</p>}
+    </div>
+  );
+};
+
+const MyComponent = ({ isLoggedIn }) => {
+  if (isLoggedIn) {
+    return <p>Welcome back!</p>;
+  } else {
+    return <p>Please log in.</p>;
+  }
+};
+
+const MyComponent = ({ isLoggedIn }) => {
+  return (
+    <div>
+      {(() => {
+        if (isLoggedIn) {
+          return <p>Welcome back!</p>;
+        } else {
+          return <p>Please log in.</p>;
+        }
+      })()}
+    </div>
+  );
+};
+
+const MyComponent = ({ userName }) => {
+  return (
+    <div>
+      <p>Hello, {userName || 'Guest'}!</p>
+    </div>
+  );
+};
