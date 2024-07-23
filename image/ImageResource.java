@@ -24,9 +24,6 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import tech.jhipster.web.util.HeaderUtil;
 import tech.jhipster.web.util.PaginationUtil;
 import tech.jhipster.web.util.ResponseUtil;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-
 
 /**
  * REST controller for managing {@link com.mycompany.myapp.domain.Image}.
@@ -211,14 +208,21 @@ public class ImageResource {
         log.debug("REST request to delete Image : {}", id);
         imageRepository.deleteById(id);
         return ResponseEntity.noContent()
-                .headers(HeaderUtil.createEntityDeletionAlert(applicationName, true, ENTITY_NAME, id.toString()))
-                .build();
+            .headers(HeaderUtil.createEntityDeletionAlert(applicationName, true, ENTITY_NAME, id.toString()))
+            .build();
     }
+
     @GetMapping("/by-paragraph/{id}")
     public ResponseEntity<List<Image>> getImageByParagraphId(@PathVariable("id") Long id) {
         log.debug("REST request to get Image by paragraphId: {}", id);
-        List<Image> list= imageService.findAllByParagraphId(id);
+        List<Image> list = imageService.findAllByParagraphId(id);
         return ResponseEntity.ok().body(list);
     }
-    
+
+    @GetMapping("/by-post/{id}")
+    public ResponseEntity<List<Image>> getImageByPostId(@PathVariable("id") Long id) {
+        log.debug("REST request to get Image by postId: {}", id);
+        List<Image> list = imageService.findAllByPostId(id);
+        return ResponseEntity.ok().body(list);
+    }
 }

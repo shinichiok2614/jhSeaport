@@ -39,4 +39,7 @@ public interface ImageRepository extends JpaRepository<Image, Long> {
     Optional<Image> findOneWithToOneRelationships(@Param("id") Long id);
 
     List<Image> findAllByParagraphId(Long paragraphId);
+
+     @Query("SELECT i FROM Image i JOIN i.paragraph p WHERE p.post.id = :postId")
+    List<Image> findImagesByPostId(@Param("postId") Long postId);
 }

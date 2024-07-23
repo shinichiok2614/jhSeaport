@@ -28,14 +28,14 @@ import {
   ValidatedBlobField,
 } from "react-jhipster";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import {
-  faSort,
-  faSortUp,
-  faSortDown,
-} from "@fortawesome/free-solid-svg-icons";
-import { APP_DATE_FORMAT } from "app/config/constants";
-import { ASC, DESC, SORT } from "app/shared/util/pagination.constants";
+// import { faSort, faSortUp, faSortDown } from '@fortawesome/free-solid-svg-icons';
+// import { APP_DATE_FORMAT } from 'app/config/constants';
+// import { ASC, DESC, SORT } from 'app/shared/util/pagination.constants';
 import { overrideSortStateWithQueryParams } from "app/shared/util/entity-utils";
+import {
+  convertDateTimeFromServer,
+  convertDateTimeToServer,
+} from "app/shared/util/date-utils";
 import { useAppDispatch, useAppSelector } from "app/config/store";
 import { ValidatedField, ValidatedForm } from "react-jhipster";
 
@@ -46,11 +46,10 @@ import {
   reset,
   updateEntity,
 } from "./paragraph.reducer";
-import { getEntitiesByParagraphId } from "../image/image.reducer";
 import {
-  convertDateTimeFromServer,
-  convertDateTimeToServer,
-} from "app/shared/util/date-utils";
+  getEntitiesByParagraphId,
+  getEntitiesByPostId as getImagesByPostId,
+} from "../image/image.reducer";
 import { getEntity as getPostById } from "app/entities/post/post.reducer";
 import {
   getEntity as getImageId,
@@ -71,42 +70,47 @@ export const ParagraphPostId = () => {
       pageLocation.search
     )
   );
+  const [editParagraph, setEditParagraph] = useState(null);
+  const [editImage, setEditImage] = useState(null);
+  const [modalOpen, setModalOpen] = useState(false);
+  const [isEditParagraph, setIsEditParagraph] = useState(false);
+  const [isEditImage, setIsEditImage] = useState(false);
 
   const paragraphList = useAppSelector((state) => state.paragraph.entities);
   const imageList = useAppSelector((state) => state.image.entities);
   const loading = useAppSelector((state) => state.paragraph.loading);
   const updating = useAppSelector((state) => state.paragraph.updating);
-
-  const [editParagraph, setEditParagraph] = useState(null);
-
-  const formRef = useRef(null);
   const postEntity = useAppSelector((state) => state.post.entity);
 
-  const [editImage, setEditImage] = useState(null);
   const isNew = !editParagraph || !editParagraph.id;
   const isNewImage = !editImage || !editImage.id;
-  const [modalOpen, setModalOpen] = useState(false);
-  const [isEditParagraph, setIsEditParagraph] = useState(false);
-  const [isEditImage, setIsEditImage] = useState(false);
+
   //trong image-update dùng id url để biết create hay update nên dùng biến isNew lấy id
   //file dùng redux nên không dùng được cách trên
   //còn create image thôi
+
   useEffect(() => {
     dispatch(getPostById(id));
   }, []);
+
   useEffect(() => {
     if (id) {
       dispatch(getEntitiesByPostId({ postId: parseInt(id, 10) }));
+      dispatch(getImagesByPostId({ id: parseInt(id, 10) }));
     }
   }, [id, dispatch]);
 
+  // useEffect(() => {
+  //   if (paragraphList.length > 0) {
+  //     paragraphList.forEach(paragraph => {
+  //       dispatch(getEntitiesByParagraphId({ id: paragraph.id }));
+  //     });
+  //   }
+  // }, [paragraphList, dispatch]);
+
   useEffect(() => {
-    if (paragraphList.length > 0) {
-      paragraphList.forEach((paragraph) => {
-        dispatch(getEntitiesByParagraphId({ id: paragraph.id }));
-      });
-    }
-  }, [paragraphList, dispatch]);
+    sortEntities();
+  }, [sortState.order, sortState.sort]);
 
   const sortEntities = () => {
     if (id) {
@@ -123,36 +127,40 @@ export const ParagraphPostId = () => {
     }
   };
 
-  useEffect(() => {
-    sortEntities();
-  }, [sortState.order, sortState.sort]);
-
-  const sort = (p) => () => {
-    setSortState({
-      ...sortState,
-      order: sortState.order === ASC ? DESC : ASC,
-      sort: p,
-    });
-  };
+  // const sort = p => () => {
+  //   setSortState({
+  //     ...sortState,
+  //     order: sortState.order === ASC ? DESC : ASC,
+  //     sort: p,
+  //   });
+  // };
 
   const handleSyncList = () => {
     sortEntities();
   };
 
-  const getSortIconByFieldName = (fieldName: string) => {
-    const sortFieldName = sortState.sort;
-    const order = sortState.order;
-    if (sortFieldName !== fieldName) {
-      return faSort;
-    } else {
-      return order === ASC ? faSortUp : faSortDown;
-    }
-  };
+  // const getSortIconByFieldName = (fieldName: string) => {
+  //   const sortFieldName = sortState.sort;
+  //   const order = sortState.order;
+  //   if (sortFieldName !== fieldName) {
+  //     return faSort;
+  //   } else {
+  //     return order === ASC ? faSortUp : faSortDown;
+  //   }
+  // };
 
   const handleEditClick = (paragraph) => {
     dispatch(getEntity(paragraph.id));
     setEditParagraph(paragraph);
     setModalOpen(true);
+  };
+  const handleEditImageClick = (values, p) => {
+    dispatch(getImageId(values.id));
+    setEditImage(values);
+    dispatch(getEntity(p.id));
+    setEditParagraph(p);
+    setModalOpen(true);
+    setIsEditImage(true);
   };
   const handleCloseModal = () => {
     setModalOpen(false);
@@ -261,14 +269,7 @@ export const ParagraphPostId = () => {
       dispatch(updateEntityImage(entity));
     }
   };
-  const handleEditImageClick = (values, p) => {
-    dispatch(getImageId(values.id));
-    setEditImage(values);
-    dispatch(getEntity(p.id));
-    setEditParagraph(p);
-    setModalOpen(true);
-    setIsEditImage(true);
-  };
+
   return (
     <div>
       <h2 id="paragraph-heading" data-cy="ParagraphHeading">
@@ -411,6 +412,7 @@ export const ParagraphPostId = () => {
               </div>
             )}
       </div>
+
       <Modal isOpen={modalOpen} toggle={handleCloseModal}>
         <ModalHeader toggle={handleCloseModal}>
           {isEditParagraph && (
