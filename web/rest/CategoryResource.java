@@ -1,7 +1,10 @@
 package com.mycompany.myapp.web.rest;
 
 import com.mycompany.myapp.domain.Category;
+import com.mycompany.myapp.domain.Post;
 import com.mycompany.myapp.repository.CategoryRepository;
+import com.mycompany.myapp.service.CategoryService;
+import com.mycompany.myapp.service.dto.CategoryDTO;
 import com.mycompany.myapp.web.rest.errors.BadRequestAlertException;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
@@ -12,17 +15,12 @@ import java.util.Objects;
 import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
-import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import tech.jhipster.web.util.HeaderUtil;
-import tech.jhipster.web.util.PaginationUtil;
 import tech.jhipster.web.util.ResponseUtil;
 
 /**
@@ -33,20 +31,21 @@ import tech.jhipster.web.util.ResponseUtil;
 @Transactional
 public class CategoryResource {
 
-    private final Logger log = LoggerFactory.getLogger(CategoryResource.class);
+    private static final Logger log = LoggerFactory.getLogger(CategoryResource.class);
 
     private static final String ENTITY_NAME = "category";
 
     @Value("${jhipster.clientApp.name}")
     private String applicationName;
 
-    private final KafkaTemplate<String, Object> kafkaTemplate;
-
     private final CategoryRepository categoryRepository;
 
-    public CategoryResource(KafkaTemplate<String, Object> kafkaTemplate, CategoryRepository categoryRepository) {
-        this.kafkaTemplate = kafkaTemplate;
+    @Autowired
+    private CategoryService categoryService;
+
+    public CategoryResource(CategoryRepository categoryRepository, CategoryService categoryService) {
         this.categoryRepository = categoryRepository;
+        this.categoryService = categoryService;
     }
 
     /**
@@ -63,8 +62,6 @@ public class CategoryResource {
             throw new BadRequestAlertException("A new category cannot already have an ID", ENTITY_NAME, "idexists");
         }
         category = categoryRepository.save(category);
-        this.kafkaTemplate.send("insert-a-category", category); //producer
-        this.kafkaTemplate.setMessageConverter(new CategoryMessageConverter());
         return ResponseEntity.created(new URI("/api/categories/" + category.getId()))
             .headers(HeaderUtil.createEntityCreationAlert(applicationName, true, ENTITY_NAME, category.getId().toString()))
             .body(category);
@@ -151,15 +148,12 @@ public class CategoryResource {
     /**
      * {@code GET  /categories} : get all the categories.
      *
-     * @param pageable the pagination information.
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and the list of categories in body.
      */
     @GetMapping("")
-    public ResponseEntity<List<Category>> getAllCategories(@org.springdoc.core.annotations.ParameterObject Pageable pageable) {
-        log.debug("REST request to get a page of Categories");
-        Page<Category> page = categoryRepository.findAll(pageable);
-        HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
-        return ResponseEntity.ok().headers(headers).body(page.getContent());
+    public List<Category> getAllCategories() {
+        log.debug("REST request to get all Categories");
+        return categoryRepository.findAll();
     }
 
     /**
@@ -186,7 +180,13 @@ public class CategoryResource {
         log.debug("REST request to delete Category : {}", id);
         categoryRepository.deleteById(id);
         return ResponseEntity.noContent()
-            .headers(HeaderUtil.createEntityDeletionAlert(applicationName, true, ENTITY_NAME, id.toString()))
-            .build();
+                .headers(HeaderUtil.createEntityDeletionAlert(applicationName, true, ENTITY_NAME, id.toString()))
+                .build();
+    }
+
+    @GetMapping("/home")
+    public ResponseEntity<List<CategoryDTO>> getCategoriesWithLatestPosts() {
+        List<CategoryDTO> categoryDTOs = categoryService.getCategoriesWithLatestPosts();
+        return ResponseEntity.ok().body(categoryDTOs);
     }
 }

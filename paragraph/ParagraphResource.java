@@ -38,7 +38,7 @@ public class ParagraphResource {
     private final ParagraphRepository paragraphRepository;
     private final ParagraphService paragraphService;
 
-    public ParagraphResource(ParagraphRepository paragraphRepository,ParagraphService paragraphService) {
+    public ParagraphResource(ParagraphRepository paragraphRepository, ParagraphService paragraphService) {
         this.paragraphRepository = paragraphRepository;
         this.paragraphService = paragraphService;
     }
@@ -192,13 +192,17 @@ public class ParagraphResource {
         log.debug("REST request to delete Paragraph : {}", id);
         paragraphRepository.deleteById(id);
         return ResponseEntity.noContent()
-                .headers(HeaderUtil.createEntityDeletionAlert(applicationName, true, ENTITY_NAME, id.toString()))
-                .build();
+            .headers(HeaderUtil.createEntityDeletionAlert(applicationName, true, ENTITY_NAME, id.toString()))
+            .build();
     }
-    
+
+    // @GetMapping("/by-post/{postId}")
+    // public ResponseEntity<List<Paragraph>> getAllParagraphsByPostId(@PathVariable Long postId) {
+    //     List<Paragraph> paragraphs = paragraphService.findAllByPostId(postId);
+    //     return ResponseEntity.ok().body(paragraphs);
+    // }
     @GetMapping("/by-post/{postId}")
-    public ResponseEntity<List<Paragraph>> getAllParagraphsByPostId(@PathVariable Long postId) {
-        List<Paragraph> paragraphs = paragraphService.findAllByPostId(postId);
-        return ResponseEntity.ok().body(paragraphs);
+    public List<Paragraph> getAllParagraphsByPostId(@PathVariable Long postId) {
+        return paragraphService.findAllByPostId(postId);
     }
 }

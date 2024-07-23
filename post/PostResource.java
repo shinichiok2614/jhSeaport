@@ -39,7 +39,7 @@ public class PostResource {
     private final PostRepository postRepository;
     private final PostService postService;
 
-    public PostResource(PostRepository postRepository,PostService postService) {
+    public PostResource(PostRepository postRepository, PostService postService) {
         this.postRepository = postRepository;
         this.postService = postService;
     }
@@ -206,10 +206,10 @@ public class PostResource {
         log.debug("REST request to delete Post : {}", id);
         postRepository.deleteById(id);
         return ResponseEntity.noContent()
-                .headers(HeaderUtil.createEntityDeletionAlert(applicationName, true, ENTITY_NAME, id.toString()))
-                .build();
+            .headers(HeaderUtil.createEntityDeletionAlert(applicationName, true, ENTITY_NAME, id.toString()))
+            .build();
     }
-    
+
     @GetMapping("/by-person/{personId}")
     public ResponseEntity<List<Post>> getAllPostsByPersonId(@PathVariable Long personId) {
         List<Post> posts = postService.findAllByPersonId(personId);

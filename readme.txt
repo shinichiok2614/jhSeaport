@@ -330,3 +330,11 @@ const MyComponent = ({ userName }) => {
 
 https://react-page.github.io/examples/reactadmin#/posts/post1
 
+STREAM song song
+List<String> titles = posts.stream() // Tạo một stream từ danh sách posts
+              .filter(post -> post.getTitle().startsWith("Title")) // Phép toán trung gian: lọc các bài đăng có tiêu đề bắt đầu bằng "Title"
+              .map(Post::getTitle) // Phép toán trung gian: chuyển đổi mỗi post thành tiêu đề của nó
+              .collect(Collectors.toList()); // Phép toán kết thúc: thu thập các tiêu đề thành một danh sách
+
+      titles.forEach(System.out::println); // In ra các tiêu đề
+

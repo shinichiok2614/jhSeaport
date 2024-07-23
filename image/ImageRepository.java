@@ -41,5 +41,8 @@ public interface ImageRepository extends JpaRepository<Image, Long> {
     List<Image> findAllByParagraphId(Long paragraphId);
 
      @Query("SELECT i FROM Image i JOIN i.paragraph p WHERE p.post.id = :postId")
-    List<Image> findImagesByPostId(@Param("postId") Long postId);
+     List<Image> findImagesByPostId(@Param("postId") Long postId);
+
+    @Query("SELECT i FROM Image i WHERE i.paragraph.id = :paragraphId")
+    Optional<Image> findFirstByParagraphId(@Param("paragraphId") Long paragraphId);
 }
