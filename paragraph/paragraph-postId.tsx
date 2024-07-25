@@ -41,6 +41,7 @@ import { ValidatedField, ValidatedForm } from "react-jhipster";
 
 import {
   createEntity,
+  deleteEntity,
   getEntitiesByPostId,
   getEntity,
   reset,
@@ -55,7 +56,11 @@ import {
   getEntity as getImageId,
   updateEntity as updateEntityImage,
   createEntity as createEntityImage,
+  deleteEntity as deleteImageEntity,
 } from "app/entities/image/image.reducer";
+
+import "./paragraph-postId.scss";
+import DeleteConfirmationButtons from "./DeleteConfirmationButtons";
 
 export const ParagraphPostId = () => {
   const dispatch = useAppDispatch();
@@ -75,6 +80,8 @@ export const ParagraphPostId = () => {
   const [modalOpen, setModalOpen] = useState(false);
   const [isEditParagraph, setIsEditParagraph] = useState(false);
   const [isEditImage, setIsEditImage] = useState(false);
+  const [paragraphToDelete, setParagraphToDelete] = useState(null);
+  const [imageToDelete, setImageToDelete] = useState(null);
 
   const paragraphList = useAppSelector((state) => state.paragraph.entities);
   const imageList = useAppSelector((state) => state.image.entities);
@@ -93,12 +100,19 @@ export const ParagraphPostId = () => {
     dispatch(getPostById(id));
   }, []);
 
+  // useEffect(() => {
+  //   if (id) {
+  //     dispatch(getEntitiesByPostId({ postId: parseInt(id, 10) }));
+  //     dispatch(getImagesByPostId({ id: parseInt(id, 10) }));
+  //   }
+  // }, [id, dispatch]);
+
   useEffect(() => {
     if (id) {
       dispatch(getEntitiesByPostId({ postId: parseInt(id, 10) }));
       dispatch(getImagesByPostId({ id: parseInt(id, 10) }));
     }
-  }, [id, dispatch]);
+  }, []);
 
   // useEffect(() => {
   //   if (paragraphList.length > 0) {
@@ -127,29 +141,22 @@ export const ParagraphPostId = () => {
     }
   };
 
-  // const sort = p => () => {
-  //   setSortState({
-  //     ...sortState,
-  //     order: sortState.order === ASC ? DESC : ASC,
-  //     sort: p,
-  //   });
-  // };
-
   const handleSyncList = () => {
     sortEntities();
   };
 
-  // const getSortIconByFieldName = (fieldName: string) => {
-  //   const sortFieldName = sortState.sort;
-  //   const order = sortState.order;
-  //   if (sortFieldName !== fieldName) {
-  //     return faSort;
-  //   } else {
-  //     return order === ASC ? faSortUp : faSortDown;
-  //   }
-  // };
+  const openDeleteModal = (paragraph) => {
+    setParagraphToDelete(paragraph);
+    setModalOpen(true);
+  };
+
+  const openDeleteImageModal = (image) => {
+    setImageToDelete(image);
+    setModalOpen(true);
+  };
 
   const handleEditClick = (paragraph) => {
+    setIsEditParagraph(true);
     dispatch(getEntity(paragraph.id));
     setEditParagraph(paragraph);
     setModalOpen(true);
@@ -165,8 +172,11 @@ export const ParagraphPostId = () => {
   const handleCloseModal = () => {
     setModalOpen(false);
     setEditParagraph(null);
+    setIsEditParagraph(null);
     setEditImage(null);
     setIsEditImage(null);
+    setParagraphToDelete(null);
+    setImageToDelete(null);
     // dispatch(reset());
   };
   const formatCurrentDateTime = () => {
@@ -205,6 +215,7 @@ export const ParagraphPostId = () => {
         };
 
   const handleCreateClick = () => {
+    setIsEditParagraph(true);
     setEditParagraph({
       createdAt: formatCurrentDateTime(),
       updateAt: formatCurrentDateTime(),
@@ -231,6 +242,8 @@ export const ParagraphPostId = () => {
     }
     values.createdAt = convertDateTimeToServer(values.createdAt);
     values.updateAt = convertDateTimeToServer(values.updateAt);
+    values.name = values.description ? values.description.substring(0, 50) : "";
+    values.order = 1;
 
     const entity = {
       ...editParagraph,
@@ -238,10 +251,12 @@ export const ParagraphPostId = () => {
       post: postEntity,
     };
     if (isNew) {
-      dispatch(createEntity(entity));
+      dispatch(createEntity({ entity, postId: parseInt(id, 10) }));
+      dispatch(getImagesByPostId({ id: parseInt(id, 10) }));
     } else {
       dispatch(updateEntity(entity));
     }
+    handleCloseModal();
   };
   const saveEntityImage = (values) => {
     if (values.id !== undefined && typeof values.id !== "number") {
@@ -262,21 +277,39 @@ export const ParagraphPostId = () => {
       album: editImage.album,
       paragraph: editParagraph,
     };
-    alert(JSON.stringify(editImage.person));
     if (isNewImage) {
       dispatch(createEntityImage(entity));
+      navigate(0);
     } else {
       dispatch(updateEntityImage(entity));
     }
+    handleCloseModal();
   };
 
   return (
-    <div>
+    <div className="news-article-container post">
+      <div className="article-category">{postEntity.category?.name}</div>
       <h2 id="paragraph-heading" data-cy="ParagraphHeading">
-        <Translate contentKey="jhSeaportApp.paragraph.home.title">
-          Paragraphs
-        </Translate>
-        <div className="d-flex justify-content-end">
+        {/* <Translate contentKey="jhSeaportApp.paragraph.home.title">Paragraphs</Translate> */}
+        <div className="article-title">{postEntity.name}</div>
+        {/* <div className="container"> */}
+        <div className="paragraph-timestamp">
+          {/* <span>
+            <Translate contentKey="jhSeaportApp.paragraph.createdAt">Created At</Translate>:
+          </span>{' '} */}
+          <TextFormat
+            type="date"
+            value={postEntity.createdAt}
+            format="YYYY-MM-DD HH:mm"
+          />
+        </div>
+        <div className="article-author">
+          {/* <Translate contentKey="jhSeaportApp.post.author">Author</Translate>: */}
+          | {postEntity.person?.name}
+        </div>
+        {/* </div> */}
+
+        <div className="d-flex justify-content-end article-controls">
           <Button
             className="me-2"
             color="info"
@@ -317,17 +350,14 @@ export const ParagraphPostId = () => {
                         disabled={updating}
                         data-cy="entityEditButton"
                       >
-                        <FontAwesomeIcon icon="pencil-alt" />{" "}
-                        <span className="d-none d-md-inline">
-                          <Translate contentKey="entity.action.edit">
-                            Edit
-                          </Translate>
-                        </span>
+                        <FontAwesomeIcon icon="pencil-alt" /> &nbsp;
+                        <Translate contentKey="entity.action.edit">
+                          Edit
+                        </Translate>
                       </Button>
                       <Button
-                        onClick={() =>
-                          (window.location.href = `/paragraph/${paragraph.id}/delete`)
-                        }
+                        // onClick={() => (window.location.href = `/paragraph/${paragraph.id}/delete`)}
+                        onClick={() => openDeleteModal(paragraph)}
                         color="danger"
                         size="sm"
                         data-cy="entityDeleteButton"
@@ -353,7 +383,13 @@ export const ParagraphPostId = () => {
                         </Translate>
                       </Button>
                     </div>
-                    <p>{paragraph.description}</p>
+                    {/* <p>{paragraph.name}</p> */}
+                    <div
+                      className="paragraph-text"
+                      style={{ whiteSpace: "pre-wrap", wordWrap: "break-word" }}
+                    >
+                      {paragraph.description}
+                    </div>
                     {imageList
                       .filter(
                         (image) =>
@@ -378,9 +414,8 @@ export const ParagraphPostId = () => {
                             </span>
                           </Button>
                           <Button
-                            onClick={() =>
-                              (window.location.href = `/image/${image.id}/delete`)
-                            }
+                            // onClick={() => (window.location.href = `/image/${image.id}/delete`)}
+                            onClick={() => openDeleteImageModal(image)}
                             color="danger"
                             size="sm"
                             data-cy="entityDeleteButton"
@@ -398,6 +433,7 @@ export const ParagraphPostId = () => {
                             alt={image.name}
                             className="paragraph-image"
                           />
+                          <div className="image-caption">{image.name}</div>
                         </div>
                       ))}
                   </div>
@@ -411,9 +447,13 @@ export const ParagraphPostId = () => {
                 </Translate>
               </div>
             )}
+        <div className="article-author-footer">
+          {/* <Translate contentKey="jhSeaportApp.post.author">Author</Translate>: */}
+          {postEntity.person?.name}
+        </div>
       </div>
 
-      <Modal isOpen={modalOpen} toggle={handleCloseModal}>
+      <Modal isOpen={modalOpen} toggle={handleCloseModal} size="lg">
         <ModalHeader toggle={handleCloseModal}>
           {isEditParagraph && (
             <Translate contentKey="jhSeaportApp.paragraph.home.createOrEditLabel">
@@ -425,8 +465,83 @@ export const ParagraphPostId = () => {
               Create or edit an Image
             </Translate>
           )}
+          {paragraphToDelete && (
+            <Translate
+              contentKey="jhSeaportApp.paragraph.delete.question"
+              interpolate={{ id: paragraphToDelete.name }}
+            >
+              Are you sure you want to delete this Paragraph?
+            </Translate>
+          )}
+          {imageToDelete && (
+            <Translate
+              contentKey="jhSeaportApp.image.delete.question"
+              interpolate={{ id: imageToDelete.name }}
+            >
+              Are you sure you want to delete this Image?
+            </Translate>
+          )}
         </ModalHeader>
         <ModalBody>
+          {imageToDelete && (
+            <div>
+              <Button color="secondary" onClick={handleCloseModal}>
+                <FontAwesomeIcon icon="ban" />
+                &nbsp;
+                <Translate contentKey="entity.action.cancel">Cancel</Translate>
+              </Button>
+              <Button
+                id="jhi-confirm-delete-paragraph"
+                data-cy="entityConfirmDeleteButton"
+                color="danger"
+                onClick={() => {
+                  if (imageToDelete) {
+                    dispatch(deleteImageEntity(imageToDelete.id));
+                    navigate(0);
+                  }
+                  handleCloseModal();
+                }}
+              >
+                <FontAwesomeIcon icon="trash" />
+                &nbsp;
+                <Translate contentKey="entity.action.delete">Delete</Translate>
+              </Button>
+            </div>
+          )}
+          {paragraphToDelete && (
+            <div>
+              <Button color="secondary" onClick={handleCloseModal}>
+                <FontAwesomeIcon icon="ban" />
+                &nbsp;
+                <Translate contentKey="entity.action.cancel">Cancel</Translate>
+              </Button>
+              <Button
+                id="jhi-confirm-delete-paragraph"
+                data-cy="entityConfirmDeleteButton"
+                color="danger"
+                onClick={() => {
+                  if (paragraphToDelete) {
+                    dispatch(
+                      deleteEntity({
+                        id: paragraphToDelete.id,
+                        postId: parseInt(id, 10),
+                      })
+                    );
+                  }
+                  handleCloseModal();
+                }}
+              >
+                <FontAwesomeIcon icon="trash" />
+                &nbsp;
+                <Translate contentKey="entity.action.delete">Delete</Translate>
+              </Button>
+            </div>
+          )}
+          {/* {paragraphToDelete && <DeleteConfirmationButtons
+            paragraphToDelete={paragraphToDelete.id}
+            postId={parseInt(id, 10)}
+            handleCloseModal={handleCloseModal}
+          />} */}
           {isEditParagraph && (
             <ValidatedForm
               defaultValues={defaultValues()}
@@ -442,41 +557,41 @@ export const ParagraphPostId = () => {
                   validate={{ required: true }}
                 />
               ) : null}
-              <ValidatedField
-                label={translate("jhSeaportApp.paragraph.name")}
+              {/* <ValidatedField
+                label={translate('jhSeaportApp.paragraph.name')}
                 id="paragraph-name"
                 name="name"
                 data-cy="name"
                 type="text"
-                validate={{
-                  required: {
-                    value: true,
-                    message: translate("entity.validation.required"),
-                  },
-                }}
-              />
+                // validate={{
+                //   required: {
+                //     value: true,
+                //     message: translate('entity.validation.required'),
+                //   },
+                // }}
+              /> */}
               <ValidatedField
                 label={translate("jhSeaportApp.paragraph.description")}
                 id="paragraph-description"
                 name="description"
                 data-cy="description"
                 type="textarea"
+                className="custom-textarea"
               />
-              <ValidatedField
-                label={translate("jhSeaportApp.paragraph.order")}
+              {/* <ValidatedField
+                label={translate('jhSeaportApp.paragraph.order')}
                 id="paragraph-order"
                 name="order"
                 data-cy="order"
                 type="text"
-                validate={{
-                  required: {
-                    value: true,
-                    message: translate("entity.validation.required"),
-                  },
-                  validate: (v) =>
-                    isNumber(v) || translate("entity.validation.number"),
-                }}
-              />
+                // validate={{
+                //   required: {
+                //     value: true,
+                //     message: translate('entity.validation.required'),
+                //   },
+                //   validate: v => isNumber(v) || translate('entity.validation.number'),
+                // }}
+              /> */}
               <ValidatedField
                 label={translate("jhSeaportApp.paragraph.createdAt")}
                 id="paragraph-createdAt"
@@ -493,15 +608,9 @@ export const ParagraphPostId = () => {
                 type="datetime-local"
                 placeholder="YYYY-MM-DD HH:mm"
               />
-              <ValidatedField
-                id="paragraph-post"
-                name="post"
-                data-cy="post"
-                label={translate("jhSeaportApp.paragraph.post")}
-                type="select"
-              >
+              {/* <ValidatedField id="paragraph-post" name="post" data-cy="post" label={translate('jhSeaportApp.paragraph.post')} type="select">
                 <option value="" key="0" />
-              </ValidatedField>
+              </ValidatedField> */}
               <Button
                 tag={Link}
                 id="cancel-save"
@@ -602,33 +711,21 @@ export const ParagraphPostId = () => {
                 type="datetime-local"
                 placeholder="YYYY-MM-DD HH:mm"
               />
-              <ValidatedField
-                id="image-person"
-                name="person"
-                data-cy="person"
-                label={translate("jhSeaportApp.image.person")}
-                type="select"
-              >
+              {/* <ValidatedField id="image-person" name="person" data-cy="person" label={translate('jhSeaportApp.image.person')} type="select">
                 <option value="" key="0" />
               </ValidatedField>
-              <ValidatedField
-                id="image-album"
-                name="album"
-                data-cy="album"
-                label={translate("jhSeaportApp.image.album")}
-                type="select"
-              >
+              <ValidatedField id="image-album" name="album" data-cy="album" label={translate('jhSeaportApp.image.album')} type="select">
                 <option value="" key="0" />
               </ValidatedField>
               <ValidatedField
                 id="image-paragraph"
                 name="paragraph"
                 data-cy="paragraph"
-                label={translate("jhSeaportApp.image.paragraph")}
+                label={translate('jhSeaportApp.image.paragraph')}
                 type="select"
               >
                 <option value="" key="0" />
-              </ValidatedField>
+              </ValidatedField> */}
               <Button
                 tag={Link}
                 id="cancel-save"

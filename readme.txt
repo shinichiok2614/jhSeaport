@@ -1,4 +1,74 @@
+https://drive.google.com/drive/folders/1WyQLXKh-Cs_e5F_B25_upSlNwfbNDQS_
+?
+  thông tin xác thực lưu ở đâu: cookie hay session
+LỖI:
+npm install - chạy đến đây dừng
+  comment tất cả <groupId>com.github.eirslett</groupId> trong pom.xml
+  ctrl c, xóa 4 eirslett trong pom.xml, ./mvnw, yarn install (hoặc yarn là được), yarn start
+
 yarn add react-modal
+npx storybook@latest init
+yarn dlx storybook@latest init
+yarn v4 mới có dlx
+
+Để cài đặt Yarn v4 (còn được gọi là Yarn Berry) trên macOS
+  brew uninstall yarn
+  npm uninstall -g yarn
+  npm install -g yarn
+  yarn set version berry
+  yarn --version
+  Cấu hình Yarn Berry cho dự án
+    touch .yarnrc.yml
+  Thêm cấu hình cơ bản vào .yarnrc.yml:
+    nodeLinker: node-modules
+  Chạy lệnh Yarn trong thư mục gốc của dự án:
+    yarn
+
+lỗi yarn v4: The nearest package directory (/Users/pc/Downloads/repo/storybook) doesn't seem to be part of the project declared in /Users/pc.
+  trong package.json của dự án chính:  
+  {
+    "private": true,
+    "workspaces": ["Downloads/repo/storybook"]
+  }
+
+nano ~/.zshrc
+brew uninstall yarn
+npm uninstall -g yarn
+rm -rf ~/.yvm
+rm -rf ~/.config/yarn
+rm -rf ~/.yarn
+curl -fsSL https://raw.githubusercontent.com/tophat/yvm/master/scripts/install.js | node
+  export YVM_DIR=$HOME/.yvm
+  [ -r $YVM_DIR/yvm.sh ] && . $YVM_DIR/yvm.sh
+source ~/.zshrc
+yvm install 1.22.22
+yvm use 1.22.22
+
+gỡ bỏ yvm (Yarn Version Manager)
+  rm -rf ~/.yvm
+  nano /.zshrc
+  xóa
+    export YVM_DIR=$HOME/.yvm
+    [ -r $YVM_DIR/yvm.sh ] && . $YVM_DIR/yvm.sh
+  source ~/.zshrc
+
+NODEJS
+brew uninstall node
+cài nvm
+  curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.3/install.sh | bash
+  source ~/.zshrc
+nvm install 20.9.0
+nvm use 20.9.0
+node -v
+npm -v
+
+
+yarn add vite --dev
+yarn storybook 
+npx storybook@latest init
+  webpack 5
+
+
 //cap quyen thu muc npm
 sudo chown -R $(whoami) $(npm config get prefix)/{lib/node_modules,bin,share}
 npm install -g generator-jhipster
@@ -24,22 +94,23 @@ jhipster info
     npm: 10.7.0
 
     Docker version 24.0.5, build ced0996
-comment tất cả <groupId>com.github.eirslett</groupId> trong pom.xml
+
+
 mkdir myApp && cd myApp
-jhipster
-jhipster --version
-8.4.0
-https://www.jhipster.tech/
-domain: modal
-webapp: react->web/rest: controller->service->repository->db
+  jhipster
+  jhipster --version
+  8.4.0
+  https://www.jhipster.tech/
+  domain: modal
+  webapp: react->web/rest: controller->service->repository->db
 
-./mvnw
-npm run e2e         *** hay
+  ./mvnw
+  npm run e2e         *** hay
 
-jhipster heroku
+  jhipster heroku
 
-jhipster jdl ./jdl/sql.jdl --ignore-application
-jhipster jdl ./readme/sql.jdl
+  jhipster jdl ./jdl/sql.jdl --ignore-application
+  jhipster jdl ./readme/sql.jdl
 
 ynarxdeiH
 y) overwrite
@@ -53,7 +124,7 @@ i) ignore, do not overwrite and remember (experimental)
 h) Help, list all options
 
 nếu sửa jdl xong mà k chạy được thì xóa database trong mysql đi
-vì liquidbase nó k thể thay đổi table đã tạo
+  vì liquidbase nó k thể thay đổi table đã tạo
 
 https://devforum.okta.com/t/build-a-photo-gallery-pwa-with-react-spring-boot-and-jhipster/16888
 
