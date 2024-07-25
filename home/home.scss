@@ -1,6 +1,7 @@
 .container {
   width: 75%;
   margin: 0 auto;
+  min-width: 1300px;
 }
 // .category-button {
 //   flex: 1;
@@ -107,7 +108,7 @@
   // flex: 0 0 30%;
   // flex: 1;
   width: 30%; /* Đặt chiều rộng cố định cho mỗi nửa */
-  // background-color: lightgreen;
+  background-color: lightgreen;
 }
 .left-half {
   width: 60%;
@@ -130,4 +131,11 @@
 }
 .child-1 {
   font-weight: bold;
+}
+.paragraph-description {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }

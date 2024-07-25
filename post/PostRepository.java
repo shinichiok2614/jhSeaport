@@ -26,10 +26,7 @@ public interface PostRepository extends JpaRepository<Post, Long> {
         return this.findAllWithToOneRelationships(pageable);
     }
 
-    @Query(
-        value = "select post from Post post left join fetch post.category left join fetch post.person",
-        countQuery = "select count(post) from Post post"
-    )
+    @Query(value = "select post from Post post left join fetch post.category left join fetch post.person", countQuery = "select count(post) from Post post")
     Page<Post> findAllWithToOneRelationships(Pageable pageable);
 
     @Query("select post from Post post left join fetch post.category left join fetch post.person")
@@ -42,4 +39,7 @@ public interface PostRepository extends JpaRepository<Post, Long> {
 
     @Query("SELECT p FROM Post p WHERE p.category.id = :categoryId ORDER BY p.createdAt DESC")
     List<Post> findTop4ByCategoryIdOrderByCreatedAtDesc(@Param("categoryId") Long categoryId);
+
+    @Query("SELECT p FROM Post p ORDER BY p.view DESC")
+    List<Post> findTop4OrderByViewDesc();
 }

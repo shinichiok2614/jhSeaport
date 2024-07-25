@@ -48,7 +48,9 @@ public class PostResource {
      * {@code POST  /posts} : Create a new post.
      *
      * @param post the post to create.
-     * @return the {@link ResponseEntity} with status {@code 201 (Created)} and with body the new post, or with status {@code 400 (Bad Request)} if the post has already an ID.
+     * @return the {@link ResponseEntity} with status {@code 201 (Created)} and with
+     *         body the new post, or with status {@code 400 (Bad Request)} if the
+     *         post has already an ID.
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
     @PostMapping("")
@@ -59,23 +61,27 @@ public class PostResource {
         }
         post = postRepository.save(post);
         return ResponseEntity.created(new URI("/api/posts/" + post.getId()))
-            .headers(HeaderUtil.createEntityCreationAlert(applicationName, true, ENTITY_NAME, post.getId().toString()))
-            .body(post);
+                .headers(HeaderUtil.createEntityCreationAlert(applicationName, true, ENTITY_NAME,
+                        post.getId().toString()))
+                .body(post);
     }
 
     /**
      * {@code PUT  /posts/:id} : Updates an existing post.
      *
-     * @param id the id of the post to save.
+     * @param id   the id of the post to save.
      * @param post the post to update.
-     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the updated post,
-     * or with status {@code 400 (Bad Request)} if the post is not valid,
-     * or with status {@code 500 (Internal Server Error)} if the post couldn't be updated.
+     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body
+     *         the updated post,
+     *         or with status {@code 400 (Bad Request)} if the post is not valid,
+     *         or with status {@code 500 (Internal Server Error)} if the post
+     *         couldn't be updated.
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
     @PutMapping("/{id}")
-    public ResponseEntity<Post> updatePost(@PathVariable(value = "id", required = false) final Long id, @Valid @RequestBody Post post)
-        throws URISyntaxException {
+    public ResponseEntity<Post> updatePost(@PathVariable(value = "id", required = false) final Long id,
+            @Valid @RequestBody Post post)
+            throws URISyntaxException {
         log.debug("REST request to update Post : {}, {}", id, post);
         if (post.getId() == null) {
             throw new BadRequestAlertException("Invalid id", ENTITY_NAME, "idnull");
@@ -90,26 +96,29 @@ public class PostResource {
 
         post = postRepository.save(post);
         return ResponseEntity.ok()
-            .headers(HeaderUtil.createEntityUpdateAlert(applicationName, true, ENTITY_NAME, post.getId().toString()))
-            .body(post);
+                .headers(
+                        HeaderUtil.createEntityUpdateAlert(applicationName, true, ENTITY_NAME, post.getId().toString()))
+                .body(post);
     }
 
     /**
-     * {@code PATCH  /posts/:id} : Partial updates given fields of an existing post, field will ignore if it is null
+     * {@code PATCH  /posts/:id} : Partial updates given fields of an existing post,
+     * field will ignore if it is null
      *
-     * @param id the id of the post to save.
+     * @param id   the id of the post to save.
      * @param post the post to update.
-     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the updated post,
-     * or with status {@code 400 (Bad Request)} if the post is not valid,
-     * or with status {@code 404 (Not Found)} if the post is not found,
-     * or with status {@code 500 (Internal Server Error)} if the post couldn't be updated.
+     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body
+     *         the updated post,
+     *         or with status {@code 400 (Bad Request)} if the post is not valid,
+     *         or with status {@code 404 (Not Found)} if the post is not found,
+     *         or with status {@code 500 (Internal Server Error)} if the post
+     *         couldn't be updated.
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
     @PatchMapping(value = "/{id}", consumes = { "application/json", "application/merge-patch+json" })
     public ResponseEntity<Post> partialUpdatePost(
-        @PathVariable(value = "id", required = false) final Long id,
-        @NotNull @RequestBody Post post
-    ) throws URISyntaxException {
+            @PathVariable(value = "id", required = false) final Long id,
+            @NotNull @RequestBody Post post) throws URISyntaxException {
         log.debug("REST request to partial update Post partially : {}, {}", id, post);
         if (post.getId() == null) {
             throw new BadRequestAlertException("Invalid id", ENTITY_NAME, "idnull");
@@ -123,56 +132,57 @@ public class PostResource {
         }
 
         Optional<Post> result = postRepository
-            .findById(post.getId())
-            .map(existingPost -> {
-                if (post.getName() != null) {
-                    existingPost.setName(post.getName());
-                }
-                if (post.getCreatedAt() != null) {
-                    existingPost.setCreatedAt(post.getCreatedAt());
-                }
-                if (post.getUpdateAt() != null) {
-                    existingPost.setUpdateAt(post.getUpdateAt());
-                }
-                if (post.getStatus() != null) {
-                    existingPost.setStatus(post.getStatus());
-                }
-                if (post.getView() != null) {
-                    existingPost.setView(post.getView());
-                }
+                .findById(post.getId())
+                .map(existingPost -> {
+                    if (post.getName() != null) {
+                        existingPost.setName(post.getName());
+                    }
+                    if (post.getCreatedAt() != null) {
+                        existingPost.setCreatedAt(post.getCreatedAt());
+                    }
+                    if (post.getUpdateAt() != null) {
+                        existingPost.setUpdateAt(post.getUpdateAt());
+                    }
+                    if (post.getStatus() != null) {
+                        existingPost.setStatus(post.getStatus());
+                    }
+                    if (post.getView() != null) {
+                        existingPost.setView(post.getView());
+                    }
 
-                return existingPost;
-            })
-            .map(postRepository::save);
+                    return existingPost;
+                })
+                .map(postRepository::save);
 
         return ResponseUtil.wrapOrNotFound(
-            result,
-            HeaderUtil.createEntityUpdateAlert(applicationName, true, ENTITY_NAME, post.getId().toString())
-        );
+                result,
+                HeaderUtil.createEntityUpdateAlert(applicationName, true, ENTITY_NAME, post.getId().toString()));
     }
 
     /**
      * {@code GET  /posts} : get all the posts.
      *
-     * @param eagerload flag to eager load entities from relationships (This is applicable for many-to-many).
-     * @param filter the filter of the request.
-     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and the list of posts in body.
+     * @param eagerload flag to eager load entities from relationships (This is
+     *                  applicable for many-to-many).
+     * @param filter    the filter of the request.
+     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and the list
+     *         of posts in body.
      */
     @GetMapping("")
     public List<Post> getAllPosts(
-        @RequestParam(name = "filter", required = false) String filter,
-        @RequestParam(name = "eagerload", required = false, defaultValue = "true") boolean eagerload
-    ) {
+            @RequestParam(name = "filter", required = false) String filter,
+            @RequestParam(name = "eagerload", required = false, defaultValue = "true") boolean eagerload) {
         if ("album-is-null".equals(filter)) {
             log.debug("REST request to get all Posts where album is null");
-            return StreamSupport.stream(postRepository.findAll().spliterator(), false).filter(post -> post.getAlbum() == null).toList();
+            return StreamSupport.stream(postRepository.findAll().spliterator(), false)
+                    .filter(post -> post.getAlbum() == null).toList();
         }
 
         if ("commentlist-is-null".equals(filter)) {
             log.debug("REST request to get all Posts where commentList is null");
             return StreamSupport.stream(postRepository.findAll().spliterator(), false)
-                .filter(post -> post.getCommentList() == null)
-                .toList();
+                    .filter(post -> post.getCommentList() == null)
+                    .toList();
         }
         log.debug("REST request to get all Posts");
         if (eagerload) {
@@ -186,7 +196,8 @@ public class PostResource {
      * {@code GET  /posts/:id} : get the "id" post.
      *
      * @param id the id of the post to retrieve.
-     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the post, or with status {@code 404 (Not Found)}.
+     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body
+     *         the post, or with status {@code 404 (Not Found)}.
      */
     @GetMapping("/{id}")
     public ResponseEntity<Post> getPost(@PathVariable("id") Long id) {
@@ -206,13 +217,27 @@ public class PostResource {
         log.debug("REST request to delete Post : {}", id);
         postRepository.deleteById(id);
         return ResponseEntity.noContent()
-            .headers(HeaderUtil.createEntityDeletionAlert(applicationName, true, ENTITY_NAME, id.toString()))
-            .build();
+                .headers(HeaderUtil.createEntityDeletionAlert(applicationName, true, ENTITY_NAME, id.toString()))
+                .build();
     }
 
     @GetMapping("/by-person/{personId}")
     public ResponseEntity<List<Post>> getAllPostsByPersonId(@PathVariable Long personId) {
         List<Post> posts = postService.findAllByPersonId(personId);
         return ResponseEntity.ok().body(posts);
+    }
+
+    @PutMapping("/posts/{id}/increaseView")
+    public ResponseEntity<Post> increaseView(@PathVariable Long id) {
+        log.debug("REST request to increase view count for Post : {}", id);
+        Optional<Post> postOptional = postRepository.findById(id);
+        if (postOptional.isPresent()) {
+            Post post = postOptional.get();
+            post.setView(post.getView() + 1);
+            postRepository.save(post);
+            return ResponseEntity.ok().body(post);
+        } else {
+            return ResponseEntity.notFound().build();
+        }
     }
 }

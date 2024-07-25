@@ -35,10 +35,56 @@ public class CategoryService {
     @Autowired
     private ImageRepository imageRepository;
 
+    // public List<CategoryDTO> getCategoriesWithLatestPosts() {
+    // List<Category> categories = categoryRepository.findAll();
+
+    // return categories.stream().map(category -> {
+    // CategoryDTO categoryDTO = new CategoryDTO();
+    // categoryDTO.setId(category.getId());
+    // categoryDTO.setName(category.getName());
+
+    // List<Post> posts =
+    // postRepository.findTop4ByCategoryIdOrderByCreatedAtDesc(category.getId());
+    // List<PostDTO> postDTOs = posts.stream().map(post -> {
+    // PostDTO postDTO = new PostDTO();
+    // postDTO.setId(post.getId());
+    // postDTO.setName(post.getName());
+    // postDTO.setCreatedAt(post.getCreatedAt());
+
+    // List<Paragraph> paragraphs =
+    // paragraphRepository.findAllByPostId(post.getId());
+    // if (!paragraphs.isEmpty()) {
+    // Paragraph firstParagraph = paragraphs.get(0);
+    // ParagraphDTO paragraphDTO = new ParagraphDTO();
+    // paragraphDTO.setId(firstParagraph.getId());
+    // paragraphDTO.setName(firstParagraph.getName());
+    // paragraphDTO.setDescription(firstParagraph.getDescription());
+
+    // Optional<Image> image =
+    // imageRepository.findFirstByParagraphId(firstParagraph.getId());
+    // image.ifPresent(img -> {
+    // ImageDTO imageDTO = new ImageDTO();
+    // imageDTO.setId(img.getId());
+    // imageDTO.setName(img.getName());
+    // imageDTO.setImage(img.getImage());
+    // paragraphDTO.setImage(imageDTO);
+    // });
+
+    // postDTO.setParagraph(paragraphDTO);
+    // }
+
+    // return postDTO;
+    // }).collect(Collectors.toList());
+
+    // categoryDTO.setPosts(postDTOs);
+
+    // return categoryDTO;
+    // }).collect(Collectors.toList());
+    // }
     public List<CategoryDTO> getCategoriesWithLatestPosts() {
         List<Category> categories = categoryRepository.findAll();
-        
-        return categories.stream().map(category -> {
+
+        List<CategoryDTO> categoryDTOList = categories.stream().map(category -> {
             CategoryDTO categoryDTO = new CategoryDTO();
             categoryDTO.setId(category.getId());
             categoryDTO.setName(category.getName());
@@ -77,5 +123,44 @@ public class CategoryService {
 
             return categoryDTO;
         }).collect(Collectors.toList());
+
+        // Thêm category "view" vào cuối danh sách
+        CategoryDTO viewCategoryDTO = new CategoryDTO();
+        viewCategoryDTO.setName("view");
+
+        List<Post> topViewedPosts = postRepository.findTop4OrderByViewDesc();
+        List<PostDTO> topViewedPostDTOs = topViewedPosts.stream().map(post -> {
+            PostDTO postDTO = new PostDTO();
+            postDTO.setId(post.getId());
+            postDTO.setName(post.getName());
+            postDTO.setCreatedAt(post.getCreatedAt());
+
+            List<Paragraph> paragraphs = paragraphRepository.findAllByPostId(post.getId());
+            if (!paragraphs.isEmpty()) {
+                Paragraph firstParagraph = paragraphs.get(0);
+                ParagraphDTO paragraphDTO = new ParagraphDTO();
+                paragraphDTO.setId(firstParagraph.getId());
+                paragraphDTO.setName(firstParagraph.getName());
+                paragraphDTO.setDescription(firstParagraph.getDescription());
+
+                Optional<Image> image = imageRepository.findFirstByParagraphId(firstParagraph.getId());
+                image.ifPresent(img -> {
+                    ImageDTO imageDTO = new ImageDTO();
+                    imageDTO.setId(img.getId());
+                    imageDTO.setName(img.getName());
+                    imageDTO.setImage(img.getImage());
+                    paragraphDTO.setImage(imageDTO);
+                });
+
+                postDTO.setParagraph(paragraphDTO);
+            }
+
+            return postDTO;
+        }).collect(Collectors.toList());
+
+        viewCategoryDTO.setPosts(topViewedPostDTOs);
+        categoryDTOList.add(viewCategoryDTO);
+
+        return categoryDTOList;
     }
 }

@@ -51,7 +51,10 @@ import {
   getEntitiesByParagraphId,
   getEntitiesByPostId as getImagesByPostId,
 } from "../image/image.reducer";
-import { getEntity as getPostById } from "app/entities/post/post.reducer";
+import {
+  getEntity as getPostById,
+  increaseView,
+} from "app/entities/post/post.reducer";
 import {
   getEntity as getImageId,
   updateEntity as updateEntityImage,
@@ -109,6 +112,7 @@ export const ParagraphPostId = () => {
 
   useEffect(() => {
     if (id) {
+      dispatch(increaseView(parseInt(id, 10)));
       dispatch(getEntitiesByPostId({ postId: parseInt(id, 10) }));
       dispatch(getImagesByPostId({ id: parseInt(id, 10) }));
     }
@@ -244,6 +248,7 @@ export const ParagraphPostId = () => {
     values.updateAt = convertDateTimeToServer(values.updateAt);
     values.name = values.description ? values.description.substring(0, 50) : "";
     values.order = 1;
+    values.view = 0;
 
     const entity = {
       ...editParagraph,
@@ -308,7 +313,7 @@ export const ParagraphPostId = () => {
           | {postEntity.person?.name}
         </div>
         {/* </div> */}
-
+        <div>view: {postEntity.view}</div>
         <div className="d-flex justify-content-end article-controls">
           <Button
             className="me-2"

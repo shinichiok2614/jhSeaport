@@ -23,7 +23,7 @@ entity Post{
     createdAt Instant
     updateAt Instant
     status Status
-    view Integer
+    view Integer required
 }
 entity Paragraph{
     name String required
