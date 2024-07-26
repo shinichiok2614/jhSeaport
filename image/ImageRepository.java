@@ -26,10 +26,7 @@ public interface ImageRepository extends JpaRepository<Image, Long> {
         return this.findAllWithToOneRelationships(pageable);
     }
 
-    @Query(
-        value = "select image from Image image left join fetch image.album left join fetch image.paragraph",
-        countQuery = "select count(image) from Image image"
-    )
+    @Query(value = "select image from Image image left join fetch image.album left join fetch image.paragraph", countQuery = "select count(image) from Image image")
     Page<Image> findAllWithToOneRelationships(Pageable pageable);
 
     @Query("select image from Image image left join fetch image.album left join fetch image.paragraph")
@@ -40,9 +37,11 @@ public interface ImageRepository extends JpaRepository<Image, Long> {
 
     List<Image> findAllByParagraphId(Long paragraphId);
 
-     @Query("SELECT i FROM Image i JOIN i.paragraph p WHERE p.post.id = :postId")
-     List<Image> findImagesByPostId(@Param("postId") Long postId);
+    @Query("SELECT i FROM Image i JOIN i.paragraph p WHERE p.post.id = :postId")
+    List<Image> findImagesByPostId(@Param("postId") Long postId);
 
     @Query("SELECT i FROM Image i WHERE i.paragraph.id = :paragraphId")
     Optional<Image> findFirstByParagraphId(@Param("paragraphId") Long paragraphId);
+
+    Optional<Image> findByPersonId(Long personId); // Thêm phương thức này
 }

@@ -53,6 +53,15 @@ export const getEntities = createAsyncThunk(
   { serializeError: serializeAxiosError }
 );
 
+export const getAllPost = createAsyncThunk(
+  "post/get-all-post",
+  async () => {
+    const requestUrl = `${apiUrl}/allpost?cacheBuster=${new Date().getTime()}`;
+    return axios.get<IPost[]>(requestUrl);
+  },
+  { serializeError: serializeAxiosError }
+);
+
 export const getEntity = createAsyncThunk(
   "post/fetch_entity",
   async (id: string | number) => {

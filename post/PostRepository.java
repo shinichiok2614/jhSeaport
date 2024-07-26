@@ -37,6 +37,8 @@ public interface PostRepository extends JpaRepository<Post, Long> {
 
     List<Post> findAllByPersonId(Long personId);
 
+    List<Post> findAll();
+
     @Query("SELECT p FROM Post p WHERE p.category.id = :categoryId ORDER BY p.createdAt DESC")
     List<Post> findTop4ByCategoryIdOrderByCreatedAtDesc(@Param("categoryId") Long categoryId);
 

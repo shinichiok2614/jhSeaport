@@ -3,6 +3,7 @@ package com.mycompany.myapp.web.rest;
 import com.mycompany.myapp.domain.Post;
 import com.mycompany.myapp.repository.PostRepository;
 import com.mycompany.myapp.service.PostService;
+import com.mycompany.myapp.service.dto.PostDetailDTO;
 import com.mycompany.myapp.web.rest.errors.BadRequestAlertException;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
@@ -227,7 +228,7 @@ public class PostResource {
         return ResponseEntity.ok().body(posts);
     }
 
-    @PutMapping("/posts/{id}/increaseView")
+    @PutMapping("/{id}/increaseView")
     public ResponseEntity<Post> increaseView(@PathVariable Long id) {
         log.debug("REST request to increase view count for Post : {}", id);
         Optional<Post> postOptional = postRepository.findById(id);
@@ -239,5 +240,11 @@ public class PostResource {
         } else {
             return ResponseEntity.notFound().build();
         }
+    }
+
+    @GetMapping("/allpost")
+    public ResponseEntity<List<PostDetailDTO>> getAllPostDetails() {
+        List<PostDetailDTO> postDetail = postService.getAllPostDetails();
+        return ResponseEntity.ok(postDetail);
     }
 }
