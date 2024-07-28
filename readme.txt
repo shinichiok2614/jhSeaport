@@ -1,3 +1,31 @@
+Install MacPorts for macOS Monterey v12: https://github.com/macports/macports-base/releases/download/v2.9.3/MacPorts-2.9.3-12-Monterey.pkg
+Install git: sudo port install git
+Install homebrew: /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+Install Docker
+ssh-keygen -t ed25519 -C "your_email@example.com"
+Install zsh: sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
+Docker:
+	cài đặt JHipster CLI:
+		docker run --rm -it -v $(pwd):/app jhipster/jhipster jhipster
+		docker run -it -v $(pwd):/app jhipster/jhipster jhipster
+			-it: Tùy chọn này bao gồm hai tùy chọn con:
+				-i: Giữ cho stdin của container mở ngay cả khi không đính kèm.
+					stdin (Standard Input): Đây là luồng đầu vào tiêu chuẩn, được sử dụng để nhận dữ liệu
+					stdout (Standard Output): Đây là luồng đầu ra tiêu chuẩn, thường là tới màn hình terminal của bạn.
+					stderr (Standard Error)
+				-t: Gán một pseudo-TTY cho container, cho phép bạn tương tác với container thông qua terminal.
+	Tương tác với container:
+		docker run -it jhipster/jhipster bash
+Cài jh: npm install -g generator-jhipster
+Cài node: 
+	docker pull node:20-alpine
+	docker run node:20-alpine node -v
+	docker run node:20-alpine npm -v
+tạo dự án:
+	docker run --rm -it -v $(pwd):/app jhipster/jhipster jhipster
+
+Install Nodejs LTS: https://nodejs.org/en/download/package-manager
+
 https://drive.google.com/drive/folders/1WyQLXKh-Cs_e5F_B25_upSlNwfbNDQS_
 ?
   thông tin xác thực lưu ở đâu: cookie hay session
