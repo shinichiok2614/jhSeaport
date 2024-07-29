@@ -17,14 +17,44 @@ Docker:
 	Tương tác với container:
 		docker run -it jhipster/jhipster bash
 Cài jh: npm install -g generator-jhipster
+Cài node:
+	# installs nvm (Node Version Manager)
+	curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh | bash
+
+	# download and install Node.js (you may need to restart the terminal)
+	nvm install 20
+
+	# verifies the right Node.js version is in the environment
+	node -v # should print `v20.16.0`
+
+	# verifies the right npm version is in the environment
+	npm -v # should print `10.8.1`
 Cài node: 
 	docker pull node:20-alpine
 	docker run node:20-alpine node -v
 	docker run node:20-alpine npm -v
+sửa lỗi nvm không truy cập được:
+	nano ~/.zshrc
+	thêm các dòng sau vào cuối tệp ~/.zshrc:
+		export NVM_DIR="$([ -z "${XDG_CONFIG_HOME-}" ] && printf %s "${HOME}/.nvm" || printf %s "${XDG_CONFIG_HOME}/nvm")"
+		[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh" # This loads nvm
+	source ~/.zshrc
+cài java:
+	brew install openjdk@21
+sửa lỗi java Permission denied:
+	sudo chmod -R 755 /Users/admin/Library/Caches/Homebrew
+	sudo chown -R $(whoami) /Users/admin/Library/Caches/Homebrew
+cấu hình java:
+	nano ~/.zshrc
+	thêm các dòng sau vào cuối tệp ~/.zshrc:
+		export PATH="/usr/local/opt/openjdk@11/bin:$PATH"
+	source ~/.zshrc
 tạo dự án:
 	docker run --rm -it -v $(pwd):/app jhipster/jhipster jhipster
-
 Install Nodejs LTS: https://nodejs.org/en/download/package-manager
+chạy MySQL:
+	docker-compose -f src/main/docker/mysql.yml up -d
+
 
 https://drive.google.com/drive/folders/1WyQLXKh-Cs_e5F_B25_upSlNwfbNDQS_
 ?
