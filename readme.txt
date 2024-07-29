@@ -54,7 +54,21 @@ tạo dự án:
 Install Nodejs LTS: https://nodejs.org/en/download/package-manager
 chạy MySQL:
 	docker-compose -f src/main/docker/mysql.yml up -d
-
+Dockerfile:
+	# Use an appropriate base image
+	FROM openjdk:17-jdk
+	# Set working directory
+	WORKDIR /app
+	# Copy the application files
+	COPY . .
+	# Build the application
+	RUN ./mvnw package
+	# Run the application
+	CMD ["java", "-jar", "target/*.jar"]
+Tạo Docker Image từ Dockerfile
+	docker build -t my-jhipster-app .
+chạy App:
+	docker-compose -f src/main/docker/app.yml up -d
 
 https://drive.google.com/drive/folders/1WyQLXKh-Cs_e5F_B25_upSlNwfbNDQS_
 ?
